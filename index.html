@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>12 Columns Random Image Prompt Generator</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    .hero {
+      padding: 120px 40px 80px;
+      max-width: 1400px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .hero-text {
+      max-width: 620px;
+    }
+
+    .hero-title {
+      font-size: 52px;
+      font-weight: 800;
+      color: #58a6ff;
+      margin-bottom: 18px;
+    }
+
+    .hero-sub {
+      font-size: 20px;
+      color: #8b949e;
+      line-height: 1.6;
+      margin-bottom: 35px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 20px 42px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 16px;
+      border: 2px solid #58a6ff;
+      background: linear-gradient(145deg,#0d1117,#161b22);
+      color: #58a6ff;
+      text-shadow: 0 0 4px rgba(88,166,255,0.6);
+      transition: 0.25s all;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .btn:hover {
+      transform: translateY(-4px);
+      background: linear-gradient(145deg,#161b22,#1b1f26);
+      box-shadow: 0 6px 20px rgba(88,166,255,0.5);
+    }
+
+    .hero-carousel {
+      width: 700px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .carousel-row {
+      height: 170px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #30363d;
+      background: #0d1117;
+    }
+
+    .carousel-track {
+      display: flex;
+      height: 100%;
+    }
+
+    .carousel-track.slide-left {
+      animation: slide-left 25s linear infinite;
+    }
+
+    .carousel-track.slide-right {
+      animation: slide-right 25s linear infinite;
+    }
+
+    .carousel-track img {
+      height: 170px;
+      width: auto;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .carousel-row:hover .carousel-track {
+      animation-play-state: paused;
+    }
+
+    @keyframes slide-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    @keyframes slide-right {
+      0% { transform: translateX(-50%); }
+      100% { transform: translateX(0); }
+    }
+
+    /* Age Popup */
+    #agePopup {
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background: rgba(0,0,0,0.65);
+      display:none;
+      justify-content:center;
+      align-items:center;
+      z-index: 9999;
+      opacity:0;
+      transition: opacity 0.3s ease;
+    }
+
+    #agePopup.show {
+      display:flex;
+      opacity:1;
+    }
+
+    .popup-box {
+      background:#161b22;
+      border:2px solid #30363d;
+      border-radius:12px;
+      padding:32px 38px;
+      text-align:center;
+      width:380px;
+    }
+
+    .popup-box h2 {
+      color:#58a6ff;
+      margin-bottom:16px;
+      font-size:26px;
+    }
+
+    .popup-box p {
+      font-size:18px;
+      margin-bottom:24px;
+      color:#c9d1d9;
+    }
+
+    .popup-buttons {
+      display:flex;
+      justify-content:center;
+      gap:16px;
+    }
+
+    .popup-btn {
+      padding:12px 28px;
+      font-size:16px;
+      font-weight:600;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      transition:0.2s;
+    }
+
+    .popup-btn-yes { background:#238636; color:#fff; }
+    .popup-btn-yes:hover { background:#2ea043; }
+    .popup-btn-no { background:#d92f2f; color:#fff; }
+    .popup-btn-no:hover { background:#ff3b3b; }
+
+    @media (max-width: 980px) {
+      .hero {
+        flex-direction: column;
+        align-items: center;
+      }
+      .hero-carousel {
+        width:100%;
+        max-width:700px;
+      }
+      .carousel-track img {
+        width:100%;
+      }
+    }
+
+    /* How It Works Section */
+    .how-it-works {
+      max-width:1400px;
+      margin:80px auto 100px;
+      padding:0 40px;
+    }
+    .how-it-works h2 {
+      color:#58a6ff;
+      font-size:48px;
+      font-weight:800;
+      margin-bottom:20px;
+      text-align:center;
+      text-shadow: 0 0 20px rgba(88,166,255,0.3);
+    }
+    .how-it-works-subtitle {
+      text-align:center;
+      color:#8b949e;
+      font-size:20px;
+      margin-bottom:60px;
+      max-width:700px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+    .steps-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+      gap:24px;
+    }
+    .how-it-works .step {
+      background:linear-gradient(145deg,#161b22,#1c2128);
+      padding:32px;
+      border-radius:16px;
+      border:1px solid #30363d;
+      transition:all 0.3s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .how-it-works .step::before {
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:3px;
+      background:linear-gradient(90deg,#58a6ff,#1f6feb);
+      opacity:0;
+      transition:opacity 0.3s ease;
+    }
+    .how-it-works .step:hover {
+      transform:translateY(-4px);
+      border-color:#58a6ff;
+      box-shadow:0 8px 24px rgba(88,166,255,0.15);
+    }
+    .how-it-works .step:hover::before {
+      opacity:1;
+    }
+    .step-number {
+      display:inline-block;
+      width:36px;
+      height:36px;
+      background:#58a6ff;
+      color:#0d1117;
+      border-radius:8px;
+      text-align:center;
+      line-height:36px;
+      font-weight:800;
+      font-size:16px;
+      margin-bottom:16px;
+    }
+    .how-it-works .step-title {
+      font-size:20px;
+      font-weight:700;
+      margin-bottom:10px;
+      color:#c9d1d9;
+    }
+    .how-it-works .step-desc {
+      color:#8b949e;
+      font-size:16px;
+      line-height:1.6;
+    }
+  </style>
+</head>
+
+<body>
+
+  <section class="hero">
+    <div class="hero-text">
+      <div class="hero-title">12 Columns Random Image Prompt Generator</div>
+      <div class="hero-sub">
+        Instantly create high-detail AI prompts using 12 dynamic categories including subject, lighting, style, colours, camera framing, and more.
+      </div>
+
+      <div class="hero-buttons">
+        <div class="btn" onclick="location.href='12ColumnsPromptGeneratorNormal.html'">Normal Version</div>
+        <div class="btn" onclick="openNSFW()">NSFW Version</div>
+      </div>
+    </div>
+
+    <div class="hero-carousel">
+      <div class="carousel-row">
+        <div class="carousel-track slide-left" id="carouselTrack1"></div>
+      </div>
+      <div class="carousel-row">
+        <div class="carousel-track slide-right" id="carouselTrack2"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works">
+    <h2>How It Works</h2>
+    <div class="how-it-works-subtitle">
+      Powerful features to help you generate perfect AI image prompts every time
+    </div>
+    <div class="steps-grid">
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-title">Pre-fill columns</div>
+        <div class="step-desc">Fills in all the columns and titles automatically.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-title">Empty all</div>
+        <div class="step-desc">Clears all the columns.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-title">Clear titles</div>
+        <div class="step-desc">Removes the column titles.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-title">Always add tags</div>
+        <div class="step-desc">Put the tags you want to always include here.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">5</div>
+        <div class="step-title">12 columns</div>
+        <div class="step-desc">You can use up to 12 columns, but you don't have to use all of them.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">6</div>
+        <div class="step-title">Column titles button</div>
+        <div class="step-desc">Keeps column titles in your prompt.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">7</div>
+        <div class="step-title">Include tags</div>
+        <div class="step-desc">Always adds the same tags to all prompts from the "always add tags" field.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">8</div>
+        <div class="step-title">Comma mode</div>
+        <div class="step-desc">Adds commas to the random prompts.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">9</div>
+        <div class="step-title">Copy JSON prompt button</div>
+        <div class="step-desc">Gives a simplified JSON format of the prompt.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">10</div>
+        <div class="step-title">Generate new</div>
+        <div class="step-desc">Generates a new prompt instantly.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">11</div>
+        <div class="step-title">Fast & pre-generated</div>
+        <div class="step-desc">The site does not use any API — everything is pre-generated and very fast.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">12</div>
+        <div class="step-title">Stored locally</div>
+        <div class="step-desc">Once loaded, the columns and settings are stored in local storage. You can download and run it locally if preferred.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Age Confirmation Popup -->
+  <div id="agePopup">
+    <div class="popup-box">
+      <h2>Age Confirmation</h2>
+      <p>Are you 18 or older?</p>
+      <div class="popup-buttons">
+        <button class="popup-btn popup-btn-yes" onclick="confirmAge(true)">Yes</button>
+        <button class="popup-btn popup-btn-no" onclick="confirmAge(false)">No</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Carousel
+    document.addEventListener("DOMContentLoaded", () => {
+      const track1 = document.getElementById("carouselTrack1");
+      const track2 = document.getElementById("carouselTrack2");
+      
+      const images = [];
+      for (let i = 1; i <= 28; i++) images.push(`images/image${i}.webp`);
+      
+      // Shuffle all images
+      for (let i = images.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [images[i], images[j]] = [images[j], images[i]];
+      }
+      
+      // Split images between the two tracks
+      const midpoint = Math.ceil(images.length / 2);
+      const images1 = images.slice(0, midpoint); // First half
+      const images2 = images.slice(midpoint);     // Second half
+      
+      // Populate track 1 (moving left)
+      [...images1, ...images1].forEach(src => {
+        const img = document.createElement("img");
+        img.src = src;
+        img.loading = "lazy";
+        track1.appendChild(img);
+      });
+      
+      // Populate track 2 (moving right)
+      [...images2, ...images2].forEach(src => {
+        const img = document.createElement("img");
+        img.src = src;
+        img.loading = "lazy";
+        track2.appendChild(img);
+      });
+    });
+
+    // NSFW confirmation
+    function openNSFW() {
+      try {
+        if (localStorage.getItem('nsfwVerified') === 'true') {
+          location.href = '12ColumnsPromptGeneratorNSFW.html';
+          return;
+        }
+      } catch (e) {}
+      document.getElementById('agePopup').classList.add('show');
+    }
+
+    function confirmAge(isAdult) {
+      const popup = document.getElementById('agePopup');
+      popup.classList.remove('show');
+      if (isAdult) {
+        try { localStorage.setItem('nsfwVerified','true'); } catch(e){}
+        location.href='12ColumnsPromptGeneratorNSFW.html';
+      }
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key==="Escape") document.getElementById('agePopup').classList.remove('show');
+    });
+  </script>
+
+</body>
+</html>

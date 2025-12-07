@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>12 Columns Random Image Prompt Generator NSFW</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1900px;
+      margin: 20px auto;
+      background: #0d1117;
+      color: #c9d1d9;
+    }
+
+    h1 {
+      text-align: center;
+      color: #58a6ff;
+      margin-bottom: 10px;
+    }
+
+    .column-labels {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 10px;
+      margin-bottom: 5px;
+    }
+
+    .column-labels input {
+      width: 100%;
+      padding: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      background: #0d1117;
+      color: #58a6ff;
+      border: 2px solid #30363d;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 260px;
+      padding: 10px;
+      font-size: 12px;
+      font-family: monospace;
+      background: #161b22;
+      color: #c9d1d9;
+      border: 2px solid #30363d;
+      border-radius: 8px;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+
+    .settings-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: start;
+      margin: 20px 0;
+      background: #161b22;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .settings-left {
+      grid-column: 1;
+      display: flex;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .always-wrapper {
+      flex: 0 0 250px;
+    }
+
+    .always-wrapper h3 {
+      color: #58a6ff;
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 0;
+    }
+
+    .always-wrapper textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      font-size: 12px;
+      font-family: monospace;
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 2px solid #30363d;
+      border-radius: 8px;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+
+    .toggles-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      /* flex: 1; Removed */
+      align-content: flex-start;
+    }
+
+    .settings-right {
+      grid-column: 3;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      height: 100%;
+    }
+
+    .action-wrapper {
+      grid-column: 2;
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      justify-content: center;
+      align-self: end;
+      padding-bottom: 5px;
+    }
+
+    .top-bar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .top-bar h1 {
+      grid-column: 2;
+      margin: 0;
+    }
+
+    .top-buttons {
+      grid-column: 3;
+      justify-self: end;
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 15px 35px;
+      margin: 0;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      /* Rounded corners */
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      /* Depth */
+      transition: all 0.2s ease;
+      /* Smooth animation */
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      /* Lift effect */
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-btn {
+      padding: 10px 15px;
+      font-size: 14px;
+      color: white;
+      border-radius: 8px;
+    }
+
+    .btn-prefill {
+      background: #1f6feb;
+    }
+
+    /* Blue */
+    .btn-prefill:hover {
+      background: #388bfd;
+    }
+
+    .btn-danger {
+      background: #da3633;
+    }
+
+    /* Red */
+    .btn-danger:hover {
+      background: #f85149;
+    }
+
+    .generate {
+      background: #238636;
+      color: white;
+      font-size: 22px;
+      padding: 18px 90px;
+    }
+
+    .generate:hover {
+      background: #2ea043;
+    }
+
+    .copy {
+      background: #1f6feb;
+      color: white;
+    }
+
+    .copy:hover {
+      background: #388bfd;
+    }
+
+    .toggle {
+      background: #da3633;
+      /* Red = OFF */
+      color: white;
+      padding: 10px 15px;
+      font-size: 14px;
+      border: 2px solid transparent;
+      /* fixed width border to prevent jump */
+      min-width: 180px;
+      text-align: center;
+    }
+
+    .toggle:hover {
+      background: #f85149;
+    }
+
+    .toggle.active {
+      background: #238636;
+      /* Green = ON */
+      border-color: #2ea043;
+    }
+
+    #output {
+      text-align: center;
+      font-size: 30px;
+      font-weight: bold;
+      line-height: 1.7;
+      padding: 40px;
+      background: #161b22;
+      border: 2px dashed #30363d;
+      border-radius: 12px;
+      margin: 30px auto;
+      max-width: 1700px;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="top-bar">
+    <a href="index.html" class="action-btn"
+      style="text-decoration: none; background: #30363d; justify-self: start;">Homepage</a>
+    <h1>12 Columns Random Image Prompt Generator <span style="color: red;">NSFW</span></h1>
+    <div class="top-buttons">
+      <button class="action-btn btn-prefill" onclick="prefillColumns()">Pre-fill Columns</button>
+      <button class="action-btn btn-danger" onclick="emptyColumns()">Empty All</button>
+      <button class="action-btn btn-danger" onclick="clearTitles()">Clear Titles</button>
+    </div>
+  </div>
+
+  <div class="column-labels">
+    <input type="text" id="label1" placeholder="Column 1">
+    <input type="text" id="label2" placeholder="Column 2">
+    <input type="text" id="label3" placeholder="Column 3">
+    <input type="text" id="label4" placeholder="Column 4">
+    <input type="text" id="label5" placeholder="Column 5">
+    <input type="text" id="label6" placeholder="Column 6">
+    <input type="text" id="label7" placeholder="Column 7">
+    <input type="text" id="label8" placeholder="Column 8">
+    <input type="text" id="label9" placeholder="Column 9">
+    <input type="text" id="label10" placeholder="Column 10">
+    <input type="text" id="label11" placeholder="Column 11">
+    <input type="text" id="label12" placeholder="Column 12">
+  </div>
+
+  <div class="container">
+    <textarea id="col1"></textarea><textarea id="col2"></textarea><textarea id="col3"></textarea><textarea
+      id="col4"></textarea>
+    <textarea id="col5"></textarea><textarea id="col6"></textarea><textarea id="col7"></textarea><textarea
+      id="col8"></textarea>
+    <textarea id="col9"></textarea><textarea id="col10"></textarea><textarea id="col11"></textarea><textarea
+      id="col12"></textarea>
+  </div>
+
+  <div class="settings-row">
+    <div class="settings-left">
+      <div class="always-wrapper">
+        <h3>Always Add Tags</h3>
+        <textarea id="alwaysText" placeholder="Tags..."></textarea>
+      </div>
+      <div class="toggles-wrapper">
+        <button class="toggle" id="titleBtn" onclick="toggleTitles()">Column Titles: ON</button>
+        <button class="toggle" id="alwaysBtn" onclick="toggleAlways()">Include Tags: ON</button>
+        <button class="toggle" id="sepBtn" onclick="toggleSep()">Comma Mode: ON</button>
+      </div>
+    </div>
+    <div class="action-wrapper">
+      <button class="generate" onclick="generate()">Generate New</button>
+      <button class="copy" onclick="copyPrompt()">Copy Prompt</button>
+    </div>
+    <div class="settings-right">
+      <button class="action-btn copy" onclick="copyJsonPrompt()">Copy JSON Prompt</button>
+    </div>
+  </div>
+
+
+
+  <div id="output">Fill columns → click Generate → only ONE line from each column appears</div>
+
+  <script>
+    const defaultTitles = ["Subject", "Hair Type", "Hair Color", "Eyes", "Body Type", "Breasts", "Skin & Marks", "Expression", "NSFW Action", "Clothing", "Lighting", "Quality"];
+    const defaultContent = {
+      1: `solo female
+beautiful young woman
+stunning young woman
+gorgeous woman in her 20s
+elegant woman in her 30s
+mature beauty in her 40s
+timeless beauty
+breathtakingly beautiful woman
+ethereal beauty
+girl next door
+alluring woman
+seductive woman
+sensual woman
+innocent-looking woman
+sweet innocent face
+corrupt innocence
+fallen innocence
+mysterious woman
+enigmatic beauty
+confident woman
+elegant lady
+sophisticated woman
+glamorous woman
+high fashion model
+runway model
+victorian lady
+1920s flapper
+1950s pinup
+1970s bombshell
+1980s supermodel
+modern instagram model
+fitness model
+lingerie model
+nude art model
+bride in white
+widow in black veil
+nun in habit
+corrupted nun aesthetic
+gothic beauty
+dark romantic
+pale gothic woman
+vintage hollywood starlet
+old money heiress
+trophy wife
+mistress
+secretary
+office siren
+strict teacher
+naughty librarian
+french maid outfit
+classic maid
+nurse in uniform
+policewoman
+flight attendant
+cheerleader
+college student
+sorority girl
+party girl
+raver girl
+tattooed alternative girl
+punk rock girl
+goth girl
+emo girl
+scene queen
+biker chick
+cowgirl
+country girl
+farm girl
+beach babe
+surfer girl
+yoga instructor
+ballet dancer
+ballroom dancer
+burlesque performer
+cabaret dancer
+stripper
+pole dancer
+camgirl
+onlyfans model
+sugar baby
+kept woman
+trophy girlfriend
+devoted housewife
+single mom
+boss lady
+corporate executive
+powerful ceo
+femme fatale
+spy assassin
+bond girl
+final girl horror
+scream queen
+hitchcock blonde
+marilyn monroe lookalike
+audrey hepburn lookalike
+grace kelly lookalike
+modern muse
+dream girl
+perfect girlfriend
+loving wife
+passionate lover
+shy virgin
+experienced woman
+recently single woman
+heartbroken woman
+freshly divorced woman
+woman next door
+mysterious stranger`, // Subject
+
+      2: `long flowing hair
+waist-length straight hair
+hip-length silky hair
+long layered hair
+long tousled hair
+long loose waves
+soft beach waves
+mermaid waves
+long soft curls
+long tight curls
+long voluminous hair
+shoulder-length wavy hair
+shoulder-length straight hair
+collarbone-length bob
+sleek blunt bob
+textured lob
+sleek chin-length bob
+short pixie cut
+textured pixie with undercut
+asymmetrical bob
+side-swept long hair
+center-parted long hair
+deep side part
+curtain bangs
+face-framing layers
+wispy bangs
+long feathered hair
+70s feathered haircut
+90s supermodel blowout
+vintage hollywood waves
+soft romantic curls
+victory rolls
+high ponytail
+low ponytail
+messy top knot
+sleek high bun
+low messy bun
+half-up half-down
+french braid
+dutch braids
+fishtail braid
+side braid
+crown braid
+long dreadlocks
+medium-length dreadlocks
+curly afro
+voluminous afro
+short natural curls
+wolf cut
+long shag cut
+medium shag with bangs
+money piece highlights
+face-framing highlights
+balayage hair
+platinum blonde hair
+strawberry blonde hair
+rich auburn hair
+jet black hair
+chestnut brown hair
+honey blonde hair
+ash blonde hair
+wet look hair
+freshly washed wet hair
+dripping wet hair
+windblown hair
+tousled bed hair
+freshly blown-out hair
+silky smooth hair
+frizz-controlled hair
+slightly messy hair
+hair tucked behind ears
+hair falling over one eye
+strands stuck to cheek
+strands stuck to lip
+sweat-dampened hairline
+baby hairs along forehead
+loose strands around face
+hair catching golden hour light
+backlit hair glow
+shiny healthy hair
+glossy hair with oil
+pearl hair pins
+delicate gold hair chain
+small diamond hair clips
+silk ribbon in hair
+fresh flowers tucked in hair
+small rose in hair
+hair swept over one shoulder
+gentle waves from braiding
+salt-spray beach texture
+voluminous roots
+flat-iron sleek hair
+natural part
+slightly off-center part
+wind-swept strands
+soft ombre hair
+caramel highlights
+dark roots with lighter ends`, // Hair Type
+
+      3: `platinum blonde
+icy platinum blonde
+scandinavian blonde
+ash blonde
+cool ash blonde
+beige blonde
+sandy blonde
+honey blonde
+golden blonde
+buttery blonde
+champagne blonde
+strawberry blonde
+light strawberry blonde
+rose gold blonde
+warm peach blonde
+caramel blonde
+light caramel hair
+chestnut brown
+rich chestnut hair
+warm chocolate brown
+cool espresso brown
+dark chocolate brown
+mocha brown
+hazelnut brown
+medium auburn
+copper auburn
+fiery copper red
+natural redhead
+ginger hair
+bright ginger
+deep wine red
+mahogany red
+cherry cola hair
+raven black hair
+jet black hair
+blue-black hair
+glossy black hair
+soft black hair
+dark brown almost black
+ash brown
+cool-toned dark brown
+warm golden brown
+light golden brown
+sandy brown
+dirty blonde
+dark blonde
+natural blonde
+bleached white blonde
+silver white hair
+natural silver gray
+salt and pepper hair
+pure white hair (albino)
+platinum with dark roots
+honey blonde balayage
+caramel balayage
+ash blonde balayage
+soft ombre blonde
+dark roots to light ends
+money piece blonde highlights
+face-framing blonde highlights
+subtle babylights
+warm honey highlights
+copper highlights on brown
+strawberry blonde highlights
+soft ash brown with cool highlights
+light auburn with golden streaks
+jet black with subtle blue sheen
+deep espresso with warm undertones`, // Hair Color
+
+      4: `piercing ice-blue eyes
+deep sapphire blue eyes
+bright sky blue eyes
+stormy gray-blue eyes
+emerald green eyes
+hazel eyes with golden flecks
+warm amber eyes
+honey brown eyes
+deep chocolate brown eyes
+dark almost black brown eyes
+steel gray eyes
+violet-blue eyes
+complete heterochromia
+sectoral heterochromia
+central heterochromia
+slightly dilated pupils
+constricted pupils
+sharp iris limbal ring
+detailed iris texture
+catchlight in eyes
+subtle light reflections in eyes
+intense eye contact
+piercing gaze
+seductive half-lidded eyes
+bedroom eyes
+sultry gaze
+innocent doe eyes
+teary eyes
+glassy tear-filled eyes
+pleading eyes
+loving soft gaze
+shy glance
+dominant stare
+submissive gaze
+hateful glare
+cold dead stare
+empty soulless eyes
+thousand-yard stare
+manic intense eyes
+crazed wide eyes
+fearful wide eyes
+sad melancholy eyes
+warm kind eyes
+mischievous glint in eyes
+smudged eyeliner
+running mascara
+black mascara tears
+subtle eyeliner
+thick winged eyeliner
+smoky eye makeup
+long dark lashes
+wet eyelashes
+teardrops on lashes
+bloodshot eyes
+red-rimmed eyes
+pale gray-blue eyes
+golden-yellow eyes
+very dark red-brown eyes`, // Eyes
+
+      5: `perfect hourglass figure
+extreme hourglass
+slim thick
+voluptuous bombshell
+petite and delicate
+short stack
+tall amazonian
+amazonian tall strong woman
+athletic toned body
+muscular fitness model
+slender runway model
+chubby soft body
+plump BBW
+pear shape bottom heavy
+apple shape top heavy
+inverted triangle swimmer build
+perfectly symmetrical body
+realistic proportions
+exaggerated proportions
+hyper curves
+cartoonish proportions
+impossibly tiny waist
+exaggerated S-curve spine
+tiny waist
+corset-trained waist
+wide breeding hips
+child-bearing hips
+massive flared hips
+dramatic hip-to-waist ratio
+narrow waist wide hips
+thick thighs
+massive thunder thighs
+slim thighs
+thigh gap
+no thigh gap
+thick calves
+toned calves
+long elegant legs
+short thick legs
+dancer legs
+runner legs
+delicate ankles
+thick ankles
+bubble butt
+heart-shaped ass
+huge round ass
+small perky ass
+muscular glutes
+soft jiggly ass
+huge jiggly buttocks
+peach-shaped ass
+massive hips and ass
+cellulite on thighs
+dimpled thighs
+smooth flawless legs
+toned abs
+visible abs
+soft belly
+chubby tummy
+slight pudge
+long torso
+short torso
+wide shoulders
+narrow shoulders
+long neck
+thick arms
+toned arms
+delicate thin arms
+thick forearms
+delicate wrists
+small elegant hands
+long slender fingers
+big strong hands
+thick fingers
+tiny breasts flat chest
+small perky breasts
+perky C-cup
+large natural breasts
+massive natural breasts
+huge hanging breasts
+massive HH-cup
+natural teardrop breasts
+bolt-on fake implants
+obviously fake round tits
+slim with huge implants
+petite with massive breasts
+top-heavy figure
+busty slim waist
+underboob visible
+massive sideboob
+huge areolas
+small pink areolas
+puffy nipples
+tiny pink nipples
+inverted nipples
+pierced nipples
+long legs
+very long legs
+short legs
+tall 6’2”
+short 4’11”
+average height
+perfectly smooth skin
+realistic skin pores
+soft pillowy body
+jiggly everywhere
+firm toned physique
+soft jiggly fat
+slight cellulite
+stretch marks on hips
+chubby cheeks
+round baby face
+sharp cheekbones
+gravity-defying breasts
+vacuum-sealed waist
+anatomically impossible curves
+latex-skin tight
+hyper-realistic 8k skin detail`, // Body Type
+
+      6: `flat chested
+tiny perky breasts
+small A cup breasts
+small B cup breasts
+small C cup breasts
+perky C cup breasts
+perfect D cup breasts
+full DD cup breasts
+round E cup breasts
+heavy F cup breasts
+massive G cup breasts
+huge H cup breasts
+enormous I cup breasts
+gigantic J cup breasts
+monstrous K cup breasts
+insane L cup breasts
+ridiculous M cup breasts
+impossible N cup breasts
+perfectly round fake breasts
+bolt-on fake tits
+obvious implants
+overfilled implants
+rock-hard implants
+gummy bear implants
+saline implants
+silicone implants
+natural teardrop breasts
+natural perky breasts
+natural heavy breasts
+natural sagging breasts
+natural veiny breasts
+lactating breasts
+milk leaking nipples
+swollen pregnant breasts
+engorged nipples
+puffy pink nipples
+huge dark areolas
+tiny pink areolas
+puffy areolas
+inverted nipples
+long nipples
+thick nipples
+pierced nipples
+nipple rings
+nipple barbells
+nipple chains
+nipple clamps
+heart-shaped nipples
+star-shaped pasties
+breasts with tan lines
+breasts with freckles
+breasts with stretch marks
+breasts with moles
+breasts with tattoos
+breasts covered in cum
+breasts dripping cum
+breasts covered in oil
+breasts covered in sweat
+breasts covered in milk
+breasts with bite marks
+breasts with hickeys
+breasts with handprints
+breasts with rope marks
+breasts pressed against glass
+breasts squeezed together
+breasts bouncing
+breasts jiggling
+breasts swinging
+breasts hanging heavily
+breasts barely contained
+breasts spilling out
+breasts bursting out
+breasts falling out of bra
+breasts falling out of shirt
+underboob visible
+sideboob visible
+massive cleavage
+deep cleavage
+perfect cleavage
+one breast larger
+slightly asymmetrical breasts
+perfectly symmetrical breasts
+wide-set breasts
+close-set breasts
+high-set breasts
+low-hanging breasts
+perky teenage breasts
+mature full breasts
+sagging mature breasts
+post-pregnancy breasts
+swollen lactating breasts
+deflated flat breasts
+pancake breasts
+tubular breasts
+constricted breasts
+augmented and perky
+augmented and heavy
+augmented and fake-looking
+natural and soft
+natural and firm
+natural and pendulous
+gravity-defying breasts
+realistic sagging
+realistic jiggle physics
+realistic breast movement
+detailed breast texture
+detailed veins on breasts
+detailed goosebumps
+detailed stretch marks
+detailed surgery scars
+detailed nipple texture
+detailed areola bumps
+detailed montgomery glands
+detailed milk ducts
+breasts with blue veins
+breasts with milk droplets
+breasts with suction marks
+breasts with vacuum pump marks
+breasts with weights
+breasts with bells
+breasts with glowing piercings
+breasts with glowing tattoos
+breasts with runes
+breasts with demonic symbols
+breasts with angelic symbols
+breasts swollen from cum inflation
+breasts swollen from hormones
+breasts swollen from pregnancy
+breasts swollen from arousal
+hypersensitive breasts
+numb overstimulated breasts`, // Breasts
+
+      7: `flawless porcelain skin
+smooth pale skin
+fair skin with rosy undertones
+lightly tanned golden skin
+sun-kissed tan
+olive skin
+deep warm brown skin
+rich chocolate skin
+ebony skin
+realistic skin texture
+detailed skin pores
+subtle skin imperfections
+light freckles across nose and cheeks
+dense freckles on face and shoulders
+freckles on chest and breasts
+beauty mark on cheek
+beauty mark above lip
+small moles scattered on body
+delicate freckles and moles
+tan lines from bikini
+sharp bikini tan lines
+soft tan lines
+no tan lines
+subtle body blush
+flushed cheeks
+blush spreading across chest
+aroused flush on chest and neck
+goosebumps on skin
+goosebumps from cold
+goosebumps from arousal
+sweat glistening on skin
+dewy skin
+oiled shiny skin
+wet and shiny skin
+sweat beads on collarbone
+light body hair
+soft peach fuzz on skin
+shaved smooth pubic area
+trimmed landing strip
+natural pubic hair
+small heart-shaped pubic hair
+pierced navel
+pierced nipples with barbell
+pierced nipples with rings
+subtle stretch marks on hips
+faint stretch marks on breasts
+thin faded scars
+small scar on knee
+jagged scar on shoulder
+self-harm scars faded
+tattooed forearm
+delicate floral wrist tattoo
+fine-line botanical tattoo
+small collarbone tattoo
+script tattoo on ribs
+minimalist finger tattoos
+blackwork thigh tattoo
+traditional style tattoos
+soft watercolor tattoo
+healed tattoo texture
+hickeys on neck
+fresh hickeys on breasts
+bite marks on inner thigh
+faint grip marks on thighs
+red handprint on ass
+light spanking marks
+rope marks on wrists
+subtle rope marks on ankles
+blushing red ass from spanking
+hard nipples
+erect nipples
+pierced clit hood
+vertical clit hood piercing
+nipple piercings visible through shirt
+glitter on collarbone
+body oil sheen
+high gloss skin
+wet look skin
+flushed and sweaty after sex
+trembling thighs
+quivering lower lip
+shivering body
+soft belly rolls
+visible ribcage when breathing
+collarbones catching light
+veins visible on breasts
+veins on hands and forearms
+slight cellulite on thighs
+natural body texture`, // Skin & Marks
+
+      8: `ahegao tongue out
+blushing intensely
+lustful bedroom eyes
+innocent but horny
+shy biting lip
+seductive smirk
+orgasm face
+rolling eyes back
+crying from pleasure
+desperate needy look
+completely broken
+ecstatic open mouth
+drooling uncontrollably
+heart pupils
+star eyes
+empty fucked silly
+yandere obsession
+teasing tongue out
+pouting seductively
+pleading eyes
+submissive gaze
+dominant glare
+sadistic grin
+manic smile
+insane laughter
+terrified expression
+worshipful gaze
+loving adoration
+hateful glare
+jealous stare
+possessive glare
+shyly looking away
+looking up innocently
+looking down submissively
+looking back over shoulder
+winking playfully
+blowing kiss
+sticking tongue out
+biting tongue
+licking lips
+sucking finger
+moaning expression
+gasping in shock
+screaming in pleasure
+laughing seductively
+crying tears of joy
+quivering lip
+trembling chin
+flushed cheeks
+sweat on brow
+messy hair in face
+hair sticking to face
+eyes half closed
+eyes wide open
+eyes crossed
+eyes unfocused
+eyes glowing
+eyes shadowed
+eyes with tears
+eyes with hearts
+eyes with spirals
+mouth forming O
+mouth wide open
+tongue lolling
+mouth with drool
+mouth with cum
+mouth gagged
+ball gag
+ring gag
+mouth covered
+mouth taped
+blindfolded
+eyes covered
+eyes rolled completely back
+face completely red
+face buried in pillow
+face in ecstasy
+face twisted in pleasure
+face of pure lust
+face of innocence corrupted
+face of total submission
+face of dominance
+face of surrender
+face of pure bliss
+face of mind break
+face of ahegao overload
+face of orgasm denial
+face of overstimulation
+face of pure happiness
+face of loving devotion
+face of hateful lust`, // Expression
+
+      9: `completely naked
+fully nude
+spreading legs wide
+spreading pussy
+fingering herself
+fingering pussy
+riding cowgirl position
+reverse cowgirl
+doggy style
+bent over
+presenting ass
+ass up face down
+on all fours
+kneeling
+missionary position
+legs behind head
+full nelson
+mating press
+prone bone
+spooning sex
+standing sex
+standing carry
+against wall
+lifted during sex
+double penetration
+anal sex
+oral sex
+deepthroat
+facefuck
+blowjob
+giving handjob
+titfuck
+paizuri
+breast squeeze
+squirting
+female ejaculation
+intense orgasm
+ahegao orgasm
+rolling eyes orgasm
+tongue out orgasm
+heart-shaped pupils
+creampie
+cum inside pussy
+cum overflow
+cum on body
+cum on face
+cum in mouth
+bukkake
+cum covered
+cum dripping from pussy
+after sex
+post-orgasm bliss
+bound wrists
+bound ankles
+shibari
+rope bondage
+collar and leash
+wearing collar
+wearing ball gag
+wearing blindfold
+wearing nipple clamps
+wearing anal plug
+wearing tail plug
+fox tail plug
+cat tail plug
+vibrator inside
+remote vibrator
+public masturbation
+public sex
+glory hole
+gangbang
+tentacle sex
+monster sex
+lactating
+milking breasts
+pissing
+golden shower
+enema
+fisting pussy
+cervix penetration
+womb penetration
+x-ray view
+internal cumshot
+breeding
+begging for sex
+masturbating
+scissoring
+tribadism
+69 position
+facesitting
+eating pussy
+licking anus
+anilingus
+footjob
+thighjob
+armpit sex
+sweaty sex
+oiled body
+covered in oil
+covered in sweat
+covered in cum
+body writing
+slut written on body
+free use
+mind break
+broken mind orgasm
+mind broken
+empty eyes
+drooling
+trembling orgasm
+shaking from pleasure
+pussy juice trail
+wet pussy
+dripping wet
+aroused swollen clit
+pulsating pussy
+gaping pussy
+gaping anus
+prolapse (use carefully)
+extreme ahegao
+tongue fully out
+tears of pleasure
+blushing intensely
+heart eyes
+completely submissive
+completely dominant
+ecstatic expression
+pleasure overload`, // NSFW Action
+
+      10: `completely naked
+fully nude
+micro bikini
+string bikini
+sling bikini
+see-through lace lingerie
+crotchless panties
+open-cup bra
+cupless bra
+fishnet bodystocking
+fishnet stockings
+torn stockings
+ripped fishnets
+garter belt and stockings
+thigh-high boots only
+red high heels only
+leather harness
+leather collar and leash
+ball gag
+ring gag
+blindfold
+silk blindfold
+nipple pasties only
+heart pasties
+star pasties
+body writing
+cum-covered body
+oiled naked body
+wearing only jewelry
+wearing only body chains
+wearing only pearl necklace
+wearing only a smile
+wearing only cum
+wearing only sweat
+wearing only tears
+wearing only a thong
+wearing only pasties and thong
+wearing only gloves
+wearing only opera gloves
+wearing only elbow-length gloves
+wearing only a choker
+wearing only a tiara
+wearing only cat ears
+wearing only bunny ears
+wearing only fox ears
+wearing only devil horns
+wearing only angel halo
+wearing only fox tail plug
+wearing only bunny tail plug
+wearing only cat tail plug
+wearing only vibrating panties
+wearing only remote vibrator
+wearing only chastity belt
+wearing only steel cuffs
+wearing only rope bondage
+wearing only shibari ropes
+wearing only latex catsuit
+wearing only latex gloves
+wearing only latex stockings
+wearing only PVC corset
+wearing only leather corset
+wearing only maid apron
+wearing only naked apron
+wearing only micro skirt
+wearing only crop top
+wearing only virgin killer sweater
+wearing only oversized sweater
+wearing only unbuttoned shirt
+wearing only open shirt
+wearing only torn clothes
+wearing only torn school uniform
+wearing only gym bloomers
+wearing only cheerleader skirt
+wearing only ripped cheer uniform
+wearing only nun habit torn
+wearing only police uniform ripped
+wearing only wedding dress lifted
+wearing only bridal lingerie
+wearing only sheer babydoll
+wearing only silk kimono open
+wearing only towel falling off
+wearing only bubbles
+wearing only soap suds
+wearing only steam
+wearing only mist
+wearing only shadows
+wearing only moonlight
+wearing only candlelight
+wearing only neon glow
+wearing only body paint
+wearing only glitter body
+wearing only feathers
+wearing only rose petals
+wearing only chains
+wearing only silk ribbons
+wearing only leather straps
+nothing but high heels
+nothing but stockings
+nothing but garter belt
+nothing but collar
+nothing but cuffs
+nothing but a belt
+nothing but a cape
+nothing but a veil
+nothing but a jacket draped open
+nothing but a coat wide open`, // Clothing
+
+      11: `golden hour beach sunset
+soft morning bedroom light
+warm golden bedroom sunrise
+luxury penthouse night city view
+neon lit cyberpunk alley
+rainy window city night
+steamy shower golden light
+candlelit gothic bedroom
+moonlit enchanted forest
+sunlit cherry blossom garden
+underwater palace blue glow
+hellfire throne room red glow
+heavenly clouds golden rays
+abandoned church moonlight
+luxurious marble bathroom
+dark dungeon torchlight
+snowy mountain cabin fireplace
+tropical jungle waterfall
+desert oasis at dusk
+volumetric god rays cathedral
+cyberpunk rooftop rain
+luxury yacht deck sunset
+abandoned asylum moonlight
+magical fairy circle glow
+crystal cave bioluminescence
+steampunk airship interior
+victorian mansion candlelight
+modern minimalist bedroom
+tokyo alleyway neon night
+venice canal golden hour
+ancient temple torchlight
+post-apocalyptic wasteland sunset
+lavish harem silk and gold
+cherry blossom tunnel spring
+autumn forest golden leaves
+winter cabin blizzard outside
+summer meadow wildflowers
+rainbow prism library
+blood moon ritual circle
+aurora borealis night sky
+total eclipse rim light
+luxury hotel suite city view
+abandoned subway neon flicker
+underwater coral reef
+floating sky island sunset
+dark forest fireflies
+lavish ballroom chandeliers
+onsen hot spring steam
+greenhouse sunlight beams
+rooftop pool city night
+abandoned mansion dust rays
+mechanical workshop sparks
+magical library floating candles
+ice cave blue glow
+volcano lava glow
+starship bridge starlight
+luxury limo interior
+rain-soaked street reflections
+sunlit meadow butterflies
+foggy graveyard moonlight
+luxury yacht bedroom porthole
+abandoned hospital fluorescent
+tavern fireplace warm
+witch hut cauldron glow
+cathedral stained glass
+luxury walk-in closet mirrors
+abandoned theater spotlight
+steamy greenhouse
+sunset cliff edge
+midnight beach bonfire
+luxury private jet interior
+floating lantern festival
+abandoned carnival night
+cherry blossom shrine
+luxury spa dim lights
+rainbow bridge night
+blood-soaked ritual room
+heavenly throne golden light
+hell throne infernal glow
+underwater ancient ruins
+luxury casino neon
+abandoned factory moonlight
+magical treehouse
+sunlit greenhouse plants
+stormy sea ship deck
+luxury rooftop jacuzzi
+ancient library candlelight
+neon arcade night
+luxury walk-in shower steam
+abandoned train station
+sunrise mountain peak
+luxury bedroom silk sheets
+misty swamp will-o'-the-wisps
+luxury walk-in wardrobe
+steamy sauna wood glow
+luxury yacht master cabin
+floating sky palace
+ancient ruins golden hour
+blood moon castle balcony
+magical crystal cavern
+luxury private cinema
+ancient tomb torchlight
+magical floating islands
+abandoned mall sunset
+steamy onsen moonlight
+magical floating sky garden
+ancient japanese shrine
+blood moon forest clearing
+abandoned space station
+steampunk laboratory
+abandoned amusement park
+ancient egyptian tomb
+luxury walk-in wine cellar
+ancient greek temple
+steamy tropical greenhouse
+abandoned underwater lab
+luxury walk-in aquarium
+heavenly garden eternal day
+hellfire dungeon
+ancient mayan temple
+magical floating waterfall
+abandoned lunar base`, // Lighting
+
+      12: `masterpiece
+best quality
+ultra detailed
+8k
+16k
+absurdres
+highres
+photorealistic
+hyperrealistic
+ultra realistic
+sharp focus
+intricate details
+extremely detailed
+tack sharp
+raw photo
+professional photography
+depth of field
+bokeh
+85mm lens
+50mm lens
+35mm lens
+135mm lens
+cowboy shot
+full body shot
+upper body
+close-up portrait
+extreme close-up
+from below
+from above
+dutch angle
+over the shoulder
+POV
+first person view
+looking at viewer
+looking up at viewer
+looking down at viewer
+side profile
+back view
+front view
+three-quarter view
+dynamic angle
+cinematic composition
+rule of thirds
+golden ratio
+perfect composition
+highly detailed background
+sharp detailed background
+simple background
+gradient background
+volumetric lighting
+ray tracing
+global illumination
+subsurface scattering
+realistic skin texture
+realistic skin pores
+realistic sweat
+detailed fluids
+detailed cum
+detailed saliva
+detailed tears
+detailed eyes
+detailed iris reflection
+detailed nipples
+detailed genitalia
+perfect hands
+perfect fingers
+perfect feet
+no artifacts
+flawless anatomy
+HDR
+film grain
+35mm film
+anamorphic lens flare
+chromatic aberration
+sony a1
+canon eos r5
+nikon z9
+hasselblad quality
+imax quality
+octane render
+unreal engine 5
+photorealistic wet skin
+detailed fabric texture
+detailed lace texture
+detailed leather
+detailed metal
+detailed glass
+detailed water droplets
+perfect lighting
+perfect shadows
+perfect reflections
+perfect proportions
+award winning
+playboy centerfold quality
+penthouse quality
+vogue cover
+fashion editorial
+best shadow detail
+best light detail
+best color accuracy
+perfect white balance
+perfect exposure
+taken on an old smartphone
+old phone quality
+phone quality` // Quality
+    };
+
+    const defaultAlwaysTags = `masterpiece
+ultra-detailed
+8k resolution
+intricate details
+best quality
+sharp focus
+cinematic lighting
+vibrant colors
+beautiful female 
+perfect feminine body 
+highly detailed woman
+perfect hands
+perfect fingers
+detailed face`
+
+
+    let useComma = true;
+    let useTitles = true;
+    let includeAlways = true;
+    let currentSelections = {};
+
+    // Load saved states
+    const savedComma = localStorage.getItem('useComma');
+    const savedTitles = localStorage.getItem('useTitles');
+    const savedAlways = localStorage.getItem('includeAlways');
+
+    if (savedComma !== null) useComma = savedComma === 'true';
+    if (savedTitles !== null) useTitles = savedTitles === 'true';
+    if (savedAlways !== null) includeAlways = savedAlways === 'true';
+
+    function toggleAlways() {
+      includeAlways = !includeAlways;
+      localStorage.setItem('includeAlways', includeAlways);
+      const btn = document.getElementById('alwaysBtn');
+      btn.textContent = 'Include Tags: ' + (includeAlways ? 'ON' : 'OFF');
+      if (includeAlways) btn.classList.add('active');
+      else btn.classList.remove('active');
+      generate();
+    }
+
+    function toggleSep() {
+      useComma = !useComma;
+      localStorage.setItem('useComma', useComma);
+      const btn = document.getElementById('sepBtn');
+      btn.textContent = 'Comma Mode: ' + (useComma ? 'ON' : 'OFF');
+      if (useComma) btn.classList.add('active');
+      else btn.classList.remove('active');
+      generate();
+    }
+
+    function toggleTitles() {
+      useTitles = !useTitles;
+      localStorage.setItem('useTitles', useTitles);
+      const btn = document.getElementById('titleBtn');
+      btn.textContent = 'Column Titles: ' + (useTitles ? 'ON' : 'OFF');
+      if (useTitles) btn.classList.add('active');
+      else btn.classList.remove('active');
+      generate();
+    }
+
+    function prefillColumns() {
+      for (let i = 1; i <= 12; i++) {
+        const labelInput = document.getElementById('label' + i);
+        const textarea = document.getElementById('col' + i);
+
+        labelInput.value = defaultTitles[i - 1];
+        textarea.value = defaultContent[i] || "";
+
+        localStorage.setItem('label' + i, labelInput.value);
+        localStorage.setItem('col' + i, textarea.value);
+      }
+
+      const alwaysText = document.getElementById('alwaysText');
+      alwaysText.value = defaultAlwaysTags;
+      localStorage.setItem('alwaysText', defaultAlwaysTags);
+
+      generate();
+    }
+
+    function emptyColumns() {
+      if (!confirm("Are you sure you want to EMPTY all columns? This cannot be undone.")) return;
+
+      for (let i = 1; i <= 12; i++) {
+        const textarea = document.getElementById('col' + i);
+        textarea.value = "";
+        localStorage.setItem('col' + i, "");
+      }
+
+      const alwaysText = document.getElementById('alwaysText');
+      alwaysText.value = "";
+      localStorage.setItem('alwaysText', "");
+
+      generate();
+    }
+
+    function clearTitles() {
+      if (!confirm("Are you sure you want to CLEAR all column titles?")) return;
+
+      for (let i = 1; i <= 12; i++) {
+        const labelInput = document.getElementById('label' + i);
+        labelInput.value = "";
+        localStorage.setItem('label' + i, "");
+      }
+      generate();
+    }
+
+    function generate() {
+      let parts = [];
+      currentSelections = {}; // clear previous
+
+      for (let i = 1; i <= 12; i++) {
+        let area = document.getElementById('col' + i);
+        if (!area) continue;
+
+        let text = area.value.trim();
+        if (text === '') continue;
+
+        let lines = text.split('\n')
+          .map(l => l.trim())
+          .filter(l => l !== '');
+
+        if (lines.length === 0) continue;
+
+        let pick = lines[Math.floor(Math.random() * lines.length)];
+        currentSelections[i] = pick; // Store for JSON export
+
+        let label = document.getElementById('label' + i).value.trim() || 'Column' + i;
+
+        if (useTitles) {
+          parts.push(label + ': ' + pick);
+        } else {
+          parts.push(pick);
+        }
+      }
+
+      if (parts.length === 0) {
+        document.getElementById('output').textContent = '(no filled columns)';
+        return;
+      }
+
+      let result = parts.join(useComma ? ', ' : '\n');
+
+      const alwaysText = document.getElementById('alwaysText').value.trim();
+
+      if (includeAlways && alwaysText) {
+        let alwaysTags = alwaysText.split('\n')
+          .map(l => l.trim())
+          .filter(l => l !== '');
+
+        if (alwaysTags.length > 0) {
+          result += (useComma ? ', ' : '\n') + alwaysTags.join(useComma ? ', ' : '\n');
+        }
+      }
+
+      document.getElementById('output').textContent = result;
+    }
+
+    function copyPrompt() {
+      let text = document.getElementById('output').textContent;
+      if (!text) return;
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+      } else {
+        let temp = document.createElement('textarea');
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+      }
+
+      let btn = document.querySelector('.copy');
+      let old = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.background = '#17b817';
+      setTimeout(() => { btn.textContent = old; btn.style.background = ''; }, 1500);
+    }
+
+    function copyJsonPrompt() {
+      // Use the selections captured during the last generate() call
+      const selections = currentSelections;
+
+      // If no generation has happened yet (empty object), try coverage
+      if (Object.keys(selections).length === 0) {
+        const outText = document.getElementById('output').textContent;
+        if (!outText || outText.includes('(no filled columns)')) {
+          alert("Please generate a prompt first.");
+          return;
+        }
+      }
+
+      // Mapping for NSFW Generator Columns:
+      // 1: Subject, 2: Hair Type, 3: Hair Color, 4: Eyes, 5: Body Type, 6: Breasts, 
+      // 7: Skin & Marks, 8: Expression, 9: NSFW Action, 10: Clothing, 11: Lighting, 12: Quality
+
+      // Construct Focus Subject string from character details
+      const subjectParts = [1, 2, 3, 4, 5, 6, 8, 9].map(i => selections[i]).filter(x => x);
+      const focusSubject = subjectParts.join(', ');
+
+      const jsonObj = {
+        "style": {
+          "lighting": selections[11] || "",
+        },
+        "technical": {
+        },
+        "materials": {
+          "clothing": selections[10] || "",
+          "skin": selections[7] || ""
+        },
+        "environment": {
+        },
+        "composition": {
+          "focus_subject": focusSubject
+        },
+        "quality": {
+          "resolution": selections[12] || ""
+        }
+      };
+
+      const jsonString = JSON.stringify(jsonObj, null, 2);
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(jsonString);
+      } else {
+        let temp = document.createElement('textarea');
+        temp.value = jsonString;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+      }
+
+      // Visual feedback on the SPECIFIC button clicked
+      const btns = document.querySelectorAll('button');
+      let btn;
+      for (let b of btns) { if (b.textContent.includes('JSON')) btn = b; }
+
+      if (btn) {
+        let old = btn.textContent;
+        btn.textContent = 'JSON Copied!';
+        let oldBg = btn.style.background;
+        btn.style.background = '#17b817';
+        setTimeout(() => { btn.textContent = old; btn.style.background = oldBg; }, 1500);
+      }
+    }
+
+    // Auto-save columns and labels
+    for (let i = 1; i <= 12; i++) {
+      const labelId = 'label' + i;
+      const colId = 'col' + i;
+
+      const savedLabel = localStorage.getItem(labelId);
+      const savedCol = localStorage.getItem(colId);
+
+      if (savedLabel) document.getElementById(labelId).value = savedLabel;
+      if (savedCol) document.getElementById(colId).value = savedCol;
+
+      document.getElementById(labelId).addEventListener('input', () => {
+        localStorage.setItem(labelId, document.getElementById(labelId).value);
+        generate();
+      });
+
+      document.getElementById(colId).addEventListener('input', () => {
+        localStorage.setItem(colId, document.getElementById(colId).value);
+      });
+    }
+
+    // Auto-save always text
+    const savedAlwaysText = localStorage.getItem('alwaysText');
+
+    if (savedAlwaysText) document.getElementById('alwaysText').value = savedAlwaysText;
+
+    document.getElementById('alwaysText').addEventListener('input', () => {
+      localStorage.setItem('alwaysText', document.getElementById('alwaysText').value);
+      generate();
+    });
+
+    // Recommended default "always add" text (very high quality focus)
+    // if (!savedAlwaysText) {
+    //   document.getElementById('alwaysText').value = defaultAlwaysTags;
+    //   localStorage.setItem('alwaysText', document.getElementById('alwaysText').value);
+    // }
+
+    // Update button text and styles on load
+    const alwaysBtn = document.getElementById('alwaysBtn');
+    const sepBtn = document.getElementById('sepBtn');
+    const titleBtn = document.getElementById('titleBtn');
+
+    alwaysBtn.textContent = 'Include Tags: ' + (includeAlways ? 'ON' : 'OFF');
+    sepBtn.textContent = 'Comma Mode: ' + (useComma ? 'ON' : 'OFF');
+    titleBtn.textContent = 'Column Titles: ' + (useTitles ? 'ON' : 'OFF');
+
+    if (includeAlways) alwaysBtn.classList.add('active');
+    if (useComma) sepBtn.classList.add('active');
+    if (useTitles) titleBtn.classList.add('active');
+
+    // Run on load
+    generate();
+  </script>
+
+</body>
+
+</html>
