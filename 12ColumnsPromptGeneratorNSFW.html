@@ -1582,15 +1582,17 @@ perfect fingers
 detailed face`
 
 
+    const STORAGE_PREFIX = 'nsfw_'; // Add this line at the very top
+
     let useComma = true;
     let useTitles = true;
     let includeAlways = true;
     let currentSelections = {};
 
     // Load saved states
-    const savedComma = localStorage.getItem('useComma');
-    const savedTitles = localStorage.getItem('useTitles');
-    const savedAlways = localStorage.getItem('includeAlways');
+    const savedComma = localStorage.getItem(STORAGE_PREFIX + 'useComma');
+    const savedTitles = localStorage.getItem(STORAGE_PREFIX + 'useTitles');
+    const savedAlways = localStorage.getItem(STORAGE_PREFIX + 'includeAlways');
 
     if (savedComma !== null) useComma = savedComma === 'true';
     if (savedTitles !== null) useTitles = savedTitles === 'true';
@@ -1598,7 +1600,7 @@ detailed face`
 
     function toggleAlways() {
       includeAlways = !includeAlways;
-      localStorage.setItem('includeAlways', includeAlways);
+      localStorage.setItem(STORAGE_PREFIX + 'includeAlways', includeAlways);
       const btn = document.getElementById('alwaysBtn');
       btn.textContent = 'Include Tags: ' + (includeAlways ? 'ON' : 'OFF');
       if (includeAlways) btn.classList.add('active');
@@ -1608,7 +1610,7 @@ detailed face`
 
     function toggleSep() {
       useComma = !useComma;
-      localStorage.setItem('useComma', useComma);
+      localStorage.setItem(STORAGE_PREFIX + 'useComma', useComma);
       const btn = document.getElementById('sepBtn');
       btn.textContent = 'Comma Mode: ' + (useComma ? 'ON' : 'OFF');
       if (useComma) btn.classList.add('active');
@@ -1618,7 +1620,7 @@ detailed face`
 
     function toggleTitles() {
       useTitles = !useTitles;
-      localStorage.setItem('useTitles', useTitles);
+      localStorage.setItem(STORAGE_PREFIX + 'useTitles', useTitles);
       const btn = document.getElementById('titleBtn');
       btn.textContent = 'Column Titles: ' + (useTitles ? 'ON' : 'OFF');
       if (useTitles) btn.classList.add('active');
@@ -1634,13 +1636,13 @@ detailed face`
         labelInput.value = defaultTitles[i - 1];
         textarea.value = defaultContent[i] || "";
 
-        localStorage.setItem('label' + i, labelInput.value);
-        localStorage.setItem('col' + i, textarea.value);
+        localStorage.setItem(STORAGE_PREFIX + 'label' + i, labelInput.value);
+        localStorage.setItem(STORAGE_PREFIX + 'col' + i, textarea.value);
       }
 
       const alwaysText = document.getElementById('alwaysText');
       alwaysText.value = defaultAlwaysTags;
-      localStorage.setItem('alwaysText', defaultAlwaysTags);
+      localStorage.setItem(STORAGE_PREFIX + 'alwaysText', defaultAlwaysTags);
 
       generate();
     }
@@ -1651,12 +1653,12 @@ detailed face`
       for (let i = 1; i <= 12; i++) {
         const textarea = document.getElementById('col' + i);
         textarea.value = "";
-        localStorage.setItem('col' + i, "");
+        localStorage.setItem(STORAGE_PREFIX + 'col' + i, "");
       }
 
       const alwaysText = document.getElementById('alwaysText');
       alwaysText.value = "";
-      localStorage.setItem('alwaysText', "");
+      localStorage.setItem(STORAGE_PREFIX + 'alwaysText', "");
 
       generate();
     }
@@ -1667,7 +1669,7 @@ detailed face`
       for (let i = 1; i <= 12; i++) {
         const labelInput = document.getElementById('label' + i);
         labelInput.value = "";
-        localStorage.setItem('label' + i, "");
+        localStorage.setItem(STORAGE_PREFIX + 'label' + i, "");
       }
       generate();
     }
@@ -1758,28 +1760,26 @@ detailed face`
         }
       }
 
-      // Mapping for NSFW Generator Columns:
-      // 1: Subject, 2: Hair Type, 3: Hair Color, 4: Eyes, 5: Body Type, 6: Breasts, 
-      // 7: Skin & Marks, 8: Expression, 9: NSFW Action, 10: Clothing, 11: Lighting, 12: Quality
-
-      // Construct Focus Subject string from character details
-      const subjectParts = [1, 2, 3, 4, 5, 6, 8, 9].map(i => selections[i]).filter(x => x);
-      const focusSubject = subjectParts.join(', ');
-
       const jsonObj = {
         "style": {
+          "primary": selections[4] || "",
           "lighting": selections[11] || "",
+          "mood": selections[5] || "",
+          "colors": selections[6] || ""
         },
         "technical": {
+          "camera": selections[9] || ""
         },
         "materials": {
-          "clothing": selections[10] || "",
-          "skin": selections[7] || ""
+          "texture": selections[8] || ""
         },
         "environment": {
+          "location": selections[3] || "",
+          "time_of_day": selections[10] || ""
         },
         "composition": {
-          "focus_subject": focusSubject
+          "framing": selections[7] || "",
+          "focus_subject": (selections[1] || "") + (selections[1] && selections[2] ? " " : "") + (selections[2] || "")
         },
         "quality": {
           "resolution": selections[12] || ""
@@ -1818,37 +1818,31 @@ detailed face`
       const labelId = 'label' + i;
       const colId = 'col' + i;
 
-      const savedLabel = localStorage.getItem(labelId);
-      const savedCol = localStorage.getItem(colId);
+      const savedLabel = localStorage.getItem(STORAGE_PREFIX + labelId);
+      const savedCol = localStorage.getItem(STORAGE_PREFIX + colId);
 
       if (savedLabel) document.getElementById(labelId).value = savedLabel;
       if (savedCol) document.getElementById(colId).value = savedCol;
 
       document.getElementById(labelId).addEventListener('input', () => {
-        localStorage.setItem(labelId, document.getElementById(labelId).value);
+        localStorage.setItem(STORAGE_PREFIX + labelId, document.getElementById(labelId).value);
         generate();
       });
 
       document.getElementById(colId).addEventListener('input', () => {
-        localStorage.setItem(colId, document.getElementById(colId).value);
+        localStorage.setItem(STORAGE_PREFIX + colId, document.getElementById(colId).value);
       });
     }
 
     // Auto-save always text
-    const savedAlwaysText = localStorage.getItem('alwaysText');
+    const savedAlwaysText = localStorage.getItem(STORAGE_PREFIX + 'alwaysText');
 
     if (savedAlwaysText) document.getElementById('alwaysText').value = savedAlwaysText;
 
     document.getElementById('alwaysText').addEventListener('input', () => {
-      localStorage.setItem('alwaysText', document.getElementById('alwaysText').value);
+      localStorage.setItem(STORAGE_PREFIX + 'alwaysText', document.getElementById('alwaysText').value);
       generate();
     });
-
-    // Recommended default "always add" text (very high quality focus)
-    // if (!savedAlwaysText) {
-    //   document.getElementById('alwaysText').value = defaultAlwaysTags;
-    //   localStorage.setItem('alwaysText', document.getElementById('alwaysText').value);
-    // }
 
     // Update button text and styles on load
     const alwaysBtn = document.getElementById('alwaysBtn');
@@ -1868,5 +1862,6 @@ detailed face`
   </script>
 
 </body>
+
 
 </html>
