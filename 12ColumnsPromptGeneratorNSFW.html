@@ -114,17 +114,11 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      /* flex: 1; Removed */
+      /* flex: 1; Removed to separate actions */
       align-content: flex-start;
     }
 
-    .settings-right {
-      grid-column: 3;
-      display: flex;
-      justify-content: flex-end;
-      align-items: flex-start;
-      height: 100%;
-    }
+    /* .settings-right CSS block removed from here as it is redefined below */
 
     .action-wrapper {
       grid-column: 2;
@@ -134,6 +128,7 @@
       justify-content: center;
       align-self: end;
       padding-bottom: 5px;
+      /* Slight offset from very bottom for visual balance */
     }
 
     .top-bar {
@@ -263,6 +258,133 @@
       max-width: 1700px;
       word-wrap: break-word;
     }
+
+    .settings-right {
+      grid-column: 3;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      /* Changed from center to flex-start for alignment */
+      gap: 15px;
+      /* Added gap */
+      height: 100%;
+    }
+
+    .preset-panel {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      width: 250px;
+      /* Fixed width */
+    }
+
+    .preset-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #58a6ff;
+      margin-bottom: 5px;
+      margin-top: 0;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .preset-select {
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 2px solid #30363d;
+      border-radius: 8px;
+      padding: 5px 10px;
+      height: 36px;
+      font-size: 14px;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preset-btn {
+      color: white;
+      border: none;
+      border-radius: 8px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0 5px;
+      font-size: 14px;
+      transition: all 0.2s;
+      font-weight: normal;
+      white-space: nowrap;
+      width: 100%;
+      box-shadow: none;
+    }
+
+    .preset-btn:hover {
+      transform: none;
+    }
+
+    .preset-btn.save {
+      background: #238636;
+      grid-column: 2;
+    }
+
+    .preset-btn.save:hover {
+      background: #2ea043;
+    }
+
+    .preset-btn.load {
+      background: #1f6feb;
+      grid-column: 1;
+    }
+
+    .preset-btn.load:hover {
+      background: #388bfd;
+    }
+
+    .preset-btn.delete {
+      background: #da3633;
+      grid-column: span 2;
+      margin-top: 5px;
+    }
+
+    .preset-btn.delete:hover {
+      background: #f85149;
+    }
+
+    .preset-btn.export,
+    .preset-btn.import {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #c9d1d9;
+    }
+
+    .preset-btn.export:hover,
+    .preset-btn.import:hover {
+      background: #30363d;
+      border-color: #8b949e;
+    }
+
+    .preset-btn.export {
+      grid-column: 1;
+    }
+
+    .preset-btn.import {
+      grid-column: 2;
+    }
   </style>
 </head>
 
@@ -318,9 +440,24 @@
     <div class="action-wrapper">
       <button class="generate" onclick="generate()">Generate New</button>
       <button class="copy" onclick="copyPrompt()">Copy Prompt</button>
+      <button class="action-btn copy" onclick="copyJsonPrompt()">Copy JSON Prompt</button>
     </div>
     <div class="settings-right">
-      <button class="action-btn copy" onclick="copyJsonPrompt()">Copy JSON Prompt</button>
+      <div class="preset-panel">
+        <div class="preset-title">Manage Presets</div>
+        <select id="presetSelect" class="preset-select">
+          <option value="">Select Preset...</option>
+        </select>
+        <div class="preset-grid">
+          <button class="preset-btn load" title="Load Preset" onclick="loadPreset()">📂 Load</button>
+          <button class="preset-btn save" title="Save Preset" onclick="savePreset()">💾 Save</button>
+          <button class="preset-btn export" title="Export Presets" onclick="exportPresets()">⬇️ Export</button>
+          <button class="preset-btn import" title="Import Presets"
+            onclick="document.getElementById('importInput').click()">⬆️ Import</button>
+          <button class="preset-btn delete" title="Delete Preset" onclick="deletePreset()">🗑️ Delete</button>
+        </div>
+        <input type="file" id="importInput" style="display: none" accept=".json" onchange="importPresets(event)">
+      </div>
     </div>
   </div>
 
@@ -1581,8 +1718,7 @@ perfect hands
 perfect fingers
 detailed face`
 
-
-    const STORAGE_PREFIX = 'nsfw_'; // Add this line at the very top
+    const STORAGE_PREFIX = 'nsfw_'; // Storage prefix for NSFW version
 
     let useComma = true;
     let useTitles = true;
@@ -1636,14 +1772,15 @@ detailed face`
         labelInput.value = defaultTitles[i - 1];
         textarea.value = defaultContent[i] || "";
 
-        localStorage.setItem(STORAGE_PREFIX + 'label' + i, labelInput.value);
-        localStorage.setItem(STORAGE_PREFIX + 'col' + i, textarea.value);
+        localStorage.removeItem(STORAGE_PREFIX + 'label' + i); // Clear old auto-save
+        localStorage.removeItem(STORAGE_PREFIX + 'col' + i); // Clear old auto-save
       }
 
       const alwaysText = document.getElementById('alwaysText');
       alwaysText.value = defaultAlwaysTags;
-      localStorage.setItem(STORAGE_PREFIX + 'alwaysText', defaultAlwaysTags);
+      localStorage.removeItem(STORAGE_PREFIX + 'alwaysText'); // Clear old auto-save
 
+      saveCurrentState(); // Save the prefilled state
       generate();
     }
 
@@ -1653,13 +1790,14 @@ detailed face`
       for (let i = 1; i <= 12; i++) {
         const textarea = document.getElementById('col' + i);
         textarea.value = "";
-        localStorage.setItem(STORAGE_PREFIX + 'col' + i, "");
+        localStorage.removeItem(STORAGE_PREFIX + 'col' + i); // Remove old auto-save
       }
 
       const alwaysText = document.getElementById('alwaysText');
       alwaysText.value = "";
-      localStorage.setItem(STORAGE_PREFIX + 'alwaysText', "");
+      localStorage.removeItem(STORAGE_PREFIX + 'alwaysText'); // Remove old auto-save
 
+      saveCurrentState(); // Save empty state
       generate();
     }
 
@@ -1857,8 +1995,263 @@ detailed face`
     if (useComma) sepBtn.classList.add('active');
     if (useTitles) titleBtn.classList.add('active');
 
-    // Run on load
-    generate();
+    // Preset Management
+    let presets = {};
+    const PRESETS_KEY = STORAGE_PREFIX + 'presets';
+
+    function loadPresetsFromStorage() {
+      const stored = localStorage.getItem(PRESETS_KEY);
+      if (stored) {
+        try {
+          presets = JSON.parse(stored);
+        } catch (e) {
+          console.error("Failed to parse presets", e);
+          presets = {};
+        }
+      }
+      updatePresetSelect();
+    }
+
+    function updatePresetSelect() {
+      const select = document.getElementById('presetSelect');
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">Select Preset...</option>';
+
+      Object.keys(presets).sort().forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+      });
+
+      if (presets[currentVal]) {
+        select.value = currentVal;
+      }
+    }
+
+    function savePreset() {
+      const name = prompt("Enter a name for this preset:");
+      if (!name) return;
+
+      if (presets[name] && !confirm(`Overwrite existing preset "${name}"?`)) {
+        return;
+      }
+
+      // Gather data
+      const data = {
+        titles: [],
+        columns: [],
+        alwaysTags: document.getElementById('alwaysText').value,
+        useTitles: useTitles,
+        includeAlways: includeAlways,
+        useComma: useComma
+      };
+
+      // Titles
+      for (let i = 1; i <= 12; i++) {
+        data.titles.push(document.getElementById(`label${i}`).value);
+      }
+
+      // Columns
+      for (let i = 1; i <= 12; i++) {
+        data.columns.push(document.getElementById(`col${i}`).value);
+      }
+
+      presets[name] = data;
+      localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+      updatePresetSelect();
+
+      // Select the newly saved preset
+      document.getElementById('presetSelect').value = name;
+      alert(`Preset "${name}" saved!`);
+    }
+
+    function loadPreset() {
+      const name = document.getElementById('presetSelect').value;
+      if (!name || !presets[name]) {
+        alert("Please select a preset to load.");
+        return;
+      }
+
+      if (!confirm("Load preset? This will overwrite current column contents.")) {
+        return;
+      }
+
+      const data = presets[name];
+
+      // Restore settings if they exist in the preset
+      if (data.useTitles !== undefined && useTitles !== data.useTitles) toggleTitles();
+      if (data.includeAlways !== undefined && includeAlways !== data.includeAlways) toggleAlways();
+      if (data.useComma !== undefined && useComma !== data.useComma) toggleSep();
+
+      // Restore Always Tags
+      document.getElementById('alwaysText').value = data.alwaysTags || '';
+
+      // Restore Titles
+      if (data.titles && data.titles.length === 12) {
+        for (let i = 0; i < 12; i++) {
+          document.getElementById(`label${i + 1}`).value = data.titles[i];
+        }
+      }
+
+      // Restore Columns
+      if (data.columns && data.columns.length === 12) {
+        for (let i = 0; i < 12; i++) {
+          document.getElementById(`col${i + 1}`).value = data.columns[i];
+        }
+      }
+
+      saveCurrentState(); // Manually save state after loading
+    }
+
+    function deletePreset() {
+      const name = document.getElementById('presetSelect').value;
+      if (!name || !presets[name]) {
+        alert("Please select a preset to delete.");
+        return;
+      }
+
+      if (confirm(`Are you sure you want to delete preset "${name}"?`)) {
+        delete presets[name];
+        localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+        updatePresetSelect();
+      }
+    }
+
+    function exportPresets() {
+      const dataStr = JSON.stringify(presets, null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "prompt_generator_presets.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importPresets(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (typeof imported !== 'object') throw new Error("Invalid Format");
+
+          // Prefix Logic
+          const prefix = prompt("Enter a prefix for the imported presets (optional):\\n(e.g., 'MyPack' -> 'MyPack - PresetName')", "");
+          if (prefix === null) {
+            event.target.value = ''; // Reset input
+            return; // Cancelled
+          }
+
+          let finalImported = {};
+          if (prefix && prefix.trim() !== "") {
+            Object.keys(imported).forEach(key => {
+              finalImported[`${prefix.trim()} - ${key}`] = imported[key];
+            });
+          } else {
+            finalImported = imported; // Use original names
+          }
+
+          if (confirm("Merge imported presets with existing ones? Cancel to overwrite existing.")) {
+            // Merge
+            presets = { ...presets, ...finalImported };
+          } else {
+            // Overwrite
+            if (confirm("Are you sure? This will delete all current presets.")) {
+              presets = finalImported;
+            } else {
+              event.target.value = '';
+              return; // Cancelled
+            }
+          }
+
+          localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+          updatePresetSelect();
+          saveCurrentState();
+          alert("Presets imported successfully!");
+        } catch (err) {
+          alert("Failed to import presets: " + err.message);
+        }
+        // Reset input
+        event.target.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    // State Persistence
+    const STATE_KEY = STORAGE_PREFIX + 'current_state';
+
+    function saveCurrentState() {
+      const data = {
+        titles: [],
+        columns: [],
+        alwaysTags: document.getElementById('alwaysText').value
+      };
+
+      for (let i = 1; i <= 12; i++) {
+        data.titles.push(document.getElementById(`label${i}`).value);
+        data.columns.push(document.getElementById(`col${i}`).value);
+      }
+
+      localStorage.setItem(STATE_KEY, JSON.stringify(data));
+    }
+
+    function loadCurrentState() {
+      const stored = localStorage.getItem(STATE_KEY);
+      if (!stored) return false;
+
+      try {
+        const data = JSON.parse(stored);
+
+        // Restore values
+        if (data.titles && data.titles.length === 12) {
+          for (let i = 0; i < 12; i++) {
+            document.getElementById(`label${i + 1}`).value = data.titles[i];
+          }
+        }
+        if (data.columns && data.columns.length === 12) {
+          for (let i = 0; i < 12; i++) {
+            document.getElementById(`col${i + 1}`).value = data.columns[i];
+          }
+        }
+        if (data.alwaysTags !== undefined) {
+          document.getElementById('alwaysText').value = data.alwaysTags;
+        }
+        return true;
+      } catch (e) {
+        console.error("Failed to load state", e);
+        return false;
+      }
+    }
+
+    // Add listeners for auto-save
+    function setupAutoSave() {
+      // Titles
+      for (let i = 1; i <= 12; i++) {
+        document.getElementById(`label${i}`).addEventListener('input', saveCurrentState);
+      }
+      // Columns
+      for (let i = 1; i <= 12; i++) {
+        document.getElementById(`col${i}`).addEventListener('input', saveCurrentState);
+      }
+      // Always tags
+      document.getElementById('alwaysText').addEventListener('input', saveCurrentState);
+    }
+
+    // Initialize
+    loadPresetsFromStorage();
+    setupAutoSave();
+
+    // Try to load saved state, otherwise generate new random
+    if (!loadCurrentState()) {
+      generate();
+    }
   </script>
 
 </body>
