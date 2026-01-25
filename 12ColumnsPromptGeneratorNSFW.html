@@ -385,6 +385,106 @@
     .preset-btn.import {
       grid-column: 2;
     }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-content {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 24px;
+      width: 400px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .modal-header {
+      color: #58a6ff;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .modal-body {
+      color: #c9d1d9;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .modal-input {
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 2px solid #30363d;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .modal-input:focus {
+      border-color: #58a6ff;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .modal-btn {
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .modal-btn.primary {
+      background: #238636;
+      color: white;
+    }
+
+    .modal-btn.primary:hover {
+      background: #2ea043;
+    }
+
+    .modal-btn.secondary {
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+    }
+
+    .modal-btn.secondary:hover {
+      background: #30363d;
+    }
+
+    .modal-btn.danger {
+      background: #da3633;
+      color: white;
+    }
+
+    .modal-btn.danger:hover {
+      background: #f85149;
+    }
   </style>
 </head>
 
@@ -461,7 +561,17 @@
     </div>
   </div>
 
-
+  <div id="customModal" class="modal-overlay">
+    <div class="modal-content">
+      <div id="modalHeader" class="modal-header"></div>
+      <div id="modalBody" class="modal-body"></div>
+      <input type="text" id="modalInput" class="modal-input" style="display: none;">
+      <div class="modal-footer">
+        <button id="modalSecondaryBtn" class="modal-btn secondary">Cancel</button>
+        <button id="modalPrimaryBtn" class="modal-btn primary">OK</button>
+      </div>
+    </div>
+  </div>
 
   <div id="output">Fill columns → click Generate → only ONE line from each column appears</div>
 
@@ -1734,6 +1844,101 @@ detailed face`
     if (savedTitles !== null) useTitles = savedTitles === 'true';
     if (savedAlways !== null) includeAlways = savedAlways === 'true';
 
+    // Modal Logic
+    function showCustomConfirm(title, message, isDanger = false) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('customModal');
+        const header = document.getElementById('modalHeader');
+        const body = document.getElementById('modalBody');
+        const input = document.getElementById('modalInput');
+        const primaryBtn = document.getElementById('modalPrimaryBtn');
+        const secondaryBtn = document.getElementById('modalSecondaryBtn');
+
+        header.textContent = title;
+        body.textContent = message;
+        input.style.display = 'none';
+
+        primaryBtn.textContent = 'Confirm';
+        if (isDanger) {
+          primaryBtn.className = 'modal-btn danger';
+        } else {
+          primaryBtn.className = 'modal-btn primary';
+        }
+
+        modal.style.display = 'flex';
+
+        const handleConfirm = () => {
+          modal.style.display = 'none';
+          cleanup();
+          resolve(true);
+        };
+
+        const handleCancel = () => {
+          modal.style.display = 'none';
+          cleanup();
+          resolve(false);
+        };
+
+        const cleanup = () => {
+          primaryBtn.removeEventListener('click', handleConfirm);
+          secondaryBtn.removeEventListener('click', handleCancel);
+        };
+
+        primaryBtn.addEventListener('click', handleConfirm);
+        secondaryBtn.addEventListener('click', handleCancel);
+      });
+    }
+
+    function showCustomPrompt(title, message, defaultValue = "") {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('customModal');
+        const header = document.getElementById('modalHeader');
+        const body = document.getElementById('modalBody');
+        const input = document.getElementById('modalInput');
+        const primaryBtn = document.getElementById('modalPrimaryBtn');
+        const secondaryBtn = document.getElementById('modalSecondaryBtn');
+
+        header.textContent = title;
+        body.textContent = message;
+        input.style.display = 'block';
+        input.value = defaultValue;
+
+        primaryBtn.textContent = 'Save';
+        primaryBtn.className = 'modal-btn primary';
+
+        modal.style.display = 'flex';
+        input.focus();
+        input.select();
+
+        const handleConfirm = () => {
+          modal.style.display = 'none';
+          cleanup();
+          resolve(input.value);
+        };
+
+        const handleCancel = () => {
+          modal.style.display = 'none';
+          cleanup();
+          resolve(null);
+        };
+
+        const handleKeydown = (e) => {
+          if (e.key === 'Enter') handleConfirm();
+          if (e.key === 'Escape') handleCancel();
+        };
+
+        const cleanup = () => {
+          primaryBtn.removeEventListener('click', handleConfirm);
+          secondaryBtn.removeEventListener('click', handleCancel);
+          input.removeEventListener('keydown', handleKeydown);
+        };
+
+        primaryBtn.addEventListener('click', handleConfirm);
+        secondaryBtn.addEventListener('click', handleCancel);
+        input.addEventListener('keydown', handleKeydown);
+      });
+    }
+
     function toggleAlways() {
       includeAlways = !includeAlways;
       localStorage.setItem(STORAGE_PREFIX + 'includeAlways', includeAlways);
@@ -1764,7 +1969,7 @@ detailed face`
       generate();
     }
 
-    function prefillColumns() {
+    async function prefillColumns() {
       for (let i = 1; i <= 12; i++) {
         const labelInput = document.getElementById('label' + i);
         const textarea = document.getElementById('col' + i);
@@ -1784,8 +1989,8 @@ detailed face`
       generate();
     }
 
-    function emptyColumns() {
-      if (!confirm("Are you sure you want to EMPTY all columns? This cannot be undone.")) return;
+    async function emptyColumns() {
+      if (!await showCustomConfirm("Empty Columns", "Are you sure you want to EMPTY all columns? This cannot be undone.", true)) return;
 
       for (let i = 1; i <= 12; i++) {
         const textarea = document.getElementById('col' + i);
@@ -1801,14 +2006,15 @@ detailed face`
       generate();
     }
 
-    function clearTitles() {
-      if (!confirm("Are you sure you want to CLEAR all column titles?")) return;
+    async function clearTitles() {
+      if (!await showCustomConfirm("Clear Titles", "Are you sure you want to CLEAR all column titles?", true)) return;
 
       for (let i = 1; i <= 12; i++) {
         const labelInput = document.getElementById('label' + i);
         labelInput.value = "";
         localStorage.setItem(STORAGE_PREFIX + 'label' + i, "");
       }
+      saveCurrentState(); // Manually save state after loading
       generate();
     }
 
@@ -1893,7 +2099,6 @@ detailed face`
       if (Object.keys(selections).length === 0) {
         const outText = document.getElementById('output').textContent;
         if (!outText || outText.includes('(no filled columns)')) {
-          alert("Please generate a prompt first.");
           return;
         }
       }
@@ -2029,11 +2234,12 @@ detailed face`
       }
     }
 
-    function savePreset() {
-      const name = prompt("Enter a name for this preset:");
+    async function savePreset() {
+      const currentName = document.getElementById('presetSelect').value;
+      const name = await showCustomPrompt("Save Preset", "Enter a name for this preset:", currentName);
       if (!name) return;
 
-      if (presets[name] && !confirm(`Overwrite existing preset "${name}"?`)) {
+      if (presets[name] && !await showCustomConfirm("Overwrite Preset", `Overwrite existing preset "${name}"?`)) {
         return;
       }
 
@@ -2063,17 +2269,15 @@ detailed face`
 
       // Select the newly saved preset
       document.getElementById('presetSelect').value = name;
-      alert(`Preset "${name}" saved!`);
     }
 
-    function loadPreset() {
+    async function loadPreset() {
       const name = document.getElementById('presetSelect').value;
       if (!name || !presets[name]) {
-        alert("Please select a preset to load.");
         return;
       }
 
-      if (!confirm("Load preset? This will overwrite current column contents.")) {
+      if (!await showCustomConfirm("Load Preset", "Load preset? This will overwrite current column contents.")) {
         return;
       }
 
@@ -2104,14 +2308,13 @@ detailed face`
       saveCurrentState(); // Manually save state after loading
     }
 
-    function deletePreset() {
+    async function deletePreset() {
       const name = document.getElementById('presetSelect').value;
       if (!name || !presets[name]) {
-        alert("Please select a preset to delete.");
         return;
       }
 
-      if (confirm(`Are you sure you want to delete preset "${name}"?`)) {
+      if (await showCustomConfirm("Delete Preset", `Are you sure you want to delete preset "${name}"?`, true)) {
         delete presets[name];
         localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
         updatePresetSelect();
@@ -2137,13 +2340,13 @@ detailed face`
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function (e) {
+      reader.onload = async function (e) {
         try {
           const imported = JSON.parse(e.target.result);
           if (typeof imported !== 'object') throw new Error("Invalid Format");
 
           // Prefix Logic
-          const prefix = prompt("Enter a prefix for the imported presets (optional):\\n(e.g., 'MyPack' -> 'MyPack - PresetName')", "");
+          const prefix = await showCustomPrompt("Import Presets", "Enter a prefix for the imported presets (optional):\\n(e.g., 'MyPack' -> 'MyPack - PresetName')", "");
           if (prefix === null) {
             event.target.value = ''; // Reset input
             return; // Cancelled
@@ -2158,12 +2361,12 @@ detailed face`
             finalImported = imported; // Use original names
           }
 
-          if (confirm("Merge imported presets with existing ones? Cancel to overwrite existing.")) {
+          if (await showCustomConfirm("Import Mode", "Merge imported presets with existing ones? Cancel to overwrite existing.")) {
             // Merge
             presets = { ...presets, ...finalImported };
           } else {
             // Overwrite
-            if (confirm("Are you sure? This will delete all current presets.")) {
+            if (await showCustomConfirm("Overwrite Presets", "Are you sure? This will delete all current presets.", true)) {
               presets = finalImported;
             } else {
               event.target.value = '';
@@ -2174,9 +2377,8 @@ detailed face`
           localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
           updatePresetSelect();
           saveCurrentState();
-          alert("Presets imported successfully!");
         } catch (err) {
-          alert("Failed to import presets: " + err.message);
+          console.error(err);
         }
         // Reset input
         event.target.value = '';
